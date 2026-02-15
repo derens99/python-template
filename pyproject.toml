@@ -1,0 +1,143 @@
+# --- Build system ---
+
+[build-system]
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
+
+# --- Project metadata ---
+
+[project]
+name = "python-template"
+author = "derens99"
+dynamic = ["version"]
+description = "A template for Python projects"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = []
+keywords = ["template", "python"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+# --- Project URLs & optional deps ---
+
+
+[project.urls]
+Homepage = "https://github.com/derens99/python-template"
+Repository = "https://github.com/derens99/python-template"
+Documentation = "https://github.com/derens99/python-template#readme"
+
+# --- Dev dependency groups ---
+
+[dependency-groups]
+dev = [
+    "hatch>=1.15.0",
+    "pytest>=9.0.2",
+    "python-semantic-release>=10.0.0",
+    "ruff>=0.15.1",
+    "ty>=0.0.17",
+]
+
+# --- Hatch: build config ---
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.hatch.build]
+reproducible = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/python_template"]
+
+# --- uv-dynamic-versioning (version from git tags at build time) ---
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "pep440"
+pattern = "^v(?P<base>\\d+\\.\\d+\\.\\d+)(-(?P<stage>[a-zA-Z]+)\\.(?P<revision>\\d+))?$"
+bump = true
+
+# --- Ruff: lint & format ---
+
+[tool.ruff]
+line-length = 88
+target-version = "py314"
+
+# --- Ruff: lint rules ---
+
+[tool.ruff.lint]
+select = [
+  "B",   # flake8-bugbear
+  "C",   # flake8-comprehensions
+  "E",   # pycodestyle errors
+  "F",   # pyflakes
+  "FA",  # flake8-future-annotations
+  "I",   # isort
+  "N",   # pep8-naming
+  "RET", # flake8-return
+  "RUF", # Ruff-specific rules
+  "SIM", # flake8-simplify
+  "T20", # flake8-print
+  "UP",  # pyupgrade
+  "W",   # pycodestyle warnings
+]
+ignore = [
+  "E501", # line too long
+]
+
+# --- Semantic release (conventional commits → semver) ---
+
+[tool.semantic_release]
+version_toml = []
+build_command = "uv build"
+commit_parser = "conventional"
+tag_format = "v{version}"
+
+# More specific patterns first. main = full release, dev = rc, feat/* = alpha.
+[tool.semantic_release.branches.alpha]
+match = "feat/.+"
+prerelease = true
+prerelease_token = "alpha"
+
+[tool.semantic_release.branches.rc]
+match = "dev"
+prerelease = true
+prerelease_token = "rc"
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease = false
+
+[tool.semantic_release.commit_parser_options]
+minor_tags = ["feat"]
+patch_tags = ["fix", "perf"]
+parse_squash_commits = true
+ignore_merge_commits = true
+
+[tool.semantic_release.changelog]
+exclude_commit_patterns = [
+  "chore(?:\\([^)]*?\\))?: .+",
+  "ci(?:\\([^)]*?\\))?: .+",
+  "refactor(?:\\([^)]*?\\))?: .+",
+  "style(?:\\([^)]*?\\))?: .+",
+  "test(?:\\([^)]*?\\))?: .+",
+  "build(?:\\([^)]*?\\))?: .+",
+  "Initial [Cc]ommit.*",
+]
+
+[tool.semantic_release.publish]
+dist_glob_patterns = ["dist/*"]
+upload_to_vcs_release = true
+
+[tool.semantic_release.remote]
+token = { env = "GH_TOKEN" }
